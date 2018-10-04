@@ -1,0 +1,39 @@
+###
+## Solution: tailored to  folder names
+#
+
+declare -a arr=(
+"CT-8026775926_V1E"
+"CT-8026775931_V1E"
+"CT-8026775937_V1E"
+"CT-8029998252" 
+"CT-8029998264" 
+"CT-8029998193"
+"CT-8029998217"
+"CT-8029998240"
+"CT-8029998265"
+"CT-8029998229"
+)
+
+# Build the 'ls' command that will list files in needed folders
+cmd="ls"
+for i in "${arr[@]}"
+do
+  cmd="$cmd /sc/orga/projects/CCSQXT/data/results/ngs/$i/results/*CARRIER_3082571.dedup.bam";
+done
+
+# Execute the ls command, and for each file run the picard.jar
+eval $cmd | while read i; 
+do 
+	PART2=`basename "$i"`;
+	echo "java -jar -Xmx16g /hpc/packages/minerva-common/picard/2.7.1/picard.jar CollectHsMetrics I=$i O=/sc/orga/work/lukato01/calcofftarget/NovaSeq/$PART2.hs.metirics BAIT_INTERVALS=/sc/orga/work/lukato01/covered_3082571.interval_list TARGET_INTERVALS=/sc/orga/work/lukato01/covered_3082571.interval_list"
+done
+
+
+###
+## On interactive1
+#
+nano makecommands.sh # put the above commands  in here
+bash makecommands.sh > picardcommands.sh # builds the commands
+module load picard/2.7.1-mgtl
+bash picardcommands2.sh
